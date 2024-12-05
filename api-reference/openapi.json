@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "InsightAI Fraud Detection API",
+    "description": "APIs for fraud detection, prevention, bulk processing, and initial customer data load.",
     "license": {
       "name": "MIT"
     },
@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://api.insightai.in/"
     }
   ],
   "security": [
@@ -19,54 +19,15 @@
     }
   ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
+    "/fraud-detection": {
       "post": {
-        "description": "Creates a new plant in the store",
+        "description": "Analyzes transaction data for potential fraud and returns a detailed fraud report.",
         "requestBody": {
-          "description": "Plant to add to the store",
+          "description": "Transaction details to analyze for fraud.",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/TransactionData"
               }
             }
           },
@@ -74,17 +35,17 @@
         },
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Fraud detection response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
+                  "$ref": "#/components/schemas/FraudDetectionResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Invalid transaction data",
             "content": {
               "application/json": {
                 "schema": {
@@ -96,28 +57,109 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+    "/fraud-detection/bulk": {
+      "post": {
+        "description": "Uploads a bulk set of transactions for fraud analysis.",
+        "requestBody": {
+          "description": "A file containing multiple transactions in CSV or JSON format.",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUploadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Bulk fraud detection response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkDetectionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid bulk upload request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fraud-detection/{id}": {
+      "get": {
+        "description": "Retrieves the fraud detection report for a specific transaction ID.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "ID of plant to delete",
+            "description": "Transaction ID for which the fraud detection report is requested.",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
             }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
+          "200": {
+            "description": "Fraud detection report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FraudDetectionReport"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Transaction ID not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fraud-detection/customers/load": {
+      "post": {
+        "description": "Loads first-time customer data into the system for fraud prevention and risk profiling.",
+        "requestBody": {
+          "description": "Customer data file in CSV or JSON format containing necessary details for onboarding.",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerDataLoadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Customer data successfully loaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDataLoadResponse"
+                }
+              }
+            }
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Invalid customer data or file format",
             "content": {
               "application/json": {
                 "schema": {
@@ -132,55 +174,151 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "TransactionData": {
         "type": "object",
+        "required": ["transactionId", "amount", "timestamp", "accountDetails"],
         "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
+          "transactionId": {
+            "type": "string",
+            "description": "Unique identifier for the transaction."
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+          "amount": {
+            "type": "number",
+            "format": "float",
+            "description": "Transaction amount."
           },
-          {
-            "required": [
-              "id"
-            ],
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the transaction."
+          },
+          "accountDetails": {
             "type": "object",
             "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
+              "accountId": {
+                "type": "string",
+                "description": "ID of the account associated with the transaction."
+              },
+              "accountType": {
+                "type": "string",
+                "description": "Type of the account (e.g., savings, current)."
               }
             }
           }
-        ]
+        }
       },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+      "FraudDetectionResponse": {
         "type": "object",
         "properties": {
-          "error": {
+          "status": {
+            "type": "string",
+            "description": "Status of the fraud detection process."
+          },
+          "isFraudulent": {
+            "type": "boolean",
+            "description": "Indicates whether the transaction is flagged as fraudulent."
+          },
+          "details": {
+            "type": "string",
+            "description": "Detailed explanation of the fraud detection result."
+          }
+        }
+      },
+      "BulkUploadRequest": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "CSV or JSON file containing multiple transactions."
+          }
+        }
+      },
+      "BulkDetectionResponse": {
+        "type": "object",
+        "properties": {
+          "processedCount": {
             "type": "integer",
-            "format": "int32"
+            "description": "Number of transactions successfully processed."
+          },
+          "fraudulentCount": {
+            "type": "integer",
+            "description": "Number of transactions flagged as fraudulent."
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FraudDetectionResponse"
+            }
+          }
+        }
+      },
+      "FraudDetectionReport": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "description": "ID of the transaction."
+          },
+          "isFraudulent": {
+            "type": "boolean",
+            "description": "Indicates if the transaction is fraudulent."
+          },
+          "riskScore": {
+            "type": "number",
+            "description": "Risk score associated with the transaction."
+          },
+          "explanation": {
+            "type": "string",
+            "description": "Detailed explanation of the fraud analysis."
+          }
+        }
+      },
+      "CustomerDataLoadRequest": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "CSV or JSON file containing customer details."
+          }
+        }
+      },
+      "CustomerDataLoadResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status of the data load process."
+          },
+          "loadedCount": {
+            "type": "integer",
+            "description": "Number of customer records successfully loaded."
+          },
+          "failedCount": {
+            "type": "integer",
+            "description": "Number of records that failed to load."
+          },
+          "errorDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "description": "Details of any errors encountered."
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["error", "message"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error code."
           },
           "message": {
-            "type": "string"
+            "type": "string",
+            "description": "Error message describing the issue."
           }
         }
       }

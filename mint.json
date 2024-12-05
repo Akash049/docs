@@ -2,28 +2,28 @@
   "$schema": "https://mintlify.com/schema.json",
   "name": "Starter Kit",
   "logo": {
-    "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg"
+    "dark": "/logo/app_logo.png",
+    "light": "/logo/app_logo.png"
   },
   "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#0D9373",
-    "light": "#07C983",
-    "dark": "#0D9373",
+    "primary": "#44acdc",
+    "light": "#8bccf2",
+    "dark": "#44acdc",
     "anchors": {
-      "from": "#0D9373",
-      "to": "#07C983"
+      "from": "#44acdc",
+      "to": "#8bccf2"
     }
   },
   "topbarLinks": [
     {
       "name": "Support",
-      "url": "mailto:hi@mintlify.com"
+      "url": "mailto:akash@insightai.in"
     }
   ],
   "topbarCtaButton": {
     "name": "Dashboard",
-    "url": "https://dashboard.mintlify.com"
+    "url": "https://app.insightai.in"
   },
   "tabs": [
     {
@@ -33,19 +33,19 @@
   ],
   "anchors": [
     {
-      "name": "Documentation",
+      "name": "Overview",
       "icon": "book-open-cover",
-      "url": "https://mintlify.com/docs"
+      "url": "https://insightai-ae3cfcd9.mintlify.app/introduction"
     },
     {
-      "name": "Community",
-      "icon": "slack",
-      "url": "https://mintlify.com/community"
+      "name": "Dashboard",
+      "icon": "globe",
+      "url": "https://app.insightai.in"
     },
     {
       "name": "Blog",
       "icon": "newspaper",
-      "url": "https://mintlify.com/blog"
+      "url": "https://www.linkedin.com/company/insightai-technologies/posts/?feedView=articles"
     }
   ],
   "navigation": [
@@ -53,19 +53,8 @@
       "group": "Get Started",
       "pages": [
         "introduction",
-        "quickstart",
-        "development"
-      ]
-    },
-    {
-      "group": "Essentials",
-      "pages": [
-        "essentials/markdown",
-        "essentials/code",
-        "essentials/images",
-        "essentials/settings",
-        "essentials/navigation",
-        "essentials/reusable-snippets"
+        "API Key",
+        "Fraud Detection"
       ]
     },
     {
@@ -75,17 +64,17 @@
       ]
     },
     {
-      "group": "Endpoint Examples",
+      "group": "Fraud Detection APIs",
       "pages": [
-        "api-reference/endpoint/get",
-        "api-reference/endpoint/create",
-        "api-reference/endpoint/delete"
+        "api-reference/endpoint/fraud_detection/customer_data_load",
+        "api-reference/endpoint/fraud_detection/transaction_analysis",
+        "api-reference/endpoint/fraud_detection/transaction_analysis_bulk",
+        "api-reference/endpoint/fraud_detection/fetch_fraud_report_by_id"
       ]
     }
   ],
   "footerSocials": {
-    "x": "https://x.com/mintlify",
-    "github": "https://github.com/mintlify",
-    "linkedin": "https://linkedin.com/company/mintlify"
+    "x": "https://twitter.com/getInsightAI",
+    "linkedin": "https://www.linkedin.com/company/insightai-technologies"
   }
 }

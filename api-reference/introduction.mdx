@@ -1,33 +1,62 @@
 ---
 title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+description: 'Get started with InsightAI API for Fraud Detection'
 ---
 
 <Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
+  Welcome to InsightAI’s API documentation! Here, you’ll find everything you need to integrate our powerful fraud detection capabilities into your systems.
 </Note>
 
-## Welcome
+---
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## API Key Requirement 🔑
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+To access InsightAI APIs, you must have a valid API key. 
 
-## Authentication
+### How to Get an API Key:
+1. Visit our web app: [https://app.insightai.in](https://app.insightai.in).
+2. Generate your API key under the "API Keys" section.
+3. For assistance, contact our team at [akash@insightai.in](mailto:akash@insightai.in).
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+### Credit Limit and Exhaustion:
+Your API key usage is subject to credit limits based on your subscription plan. If your credits are exhausted, the following error will be returned:
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+{
+  "status": "error",
+  "code": 402,
+  "message": "Credit limit exceeded. Please upgrade your plan or contact support."
+}
+```
+
+### Sandbox Testing 🛠️
+The sandbox environment allows you to test our APIs without affecting production data. It is the perfect space to validate integration and explore InsightAI’s capabilities.
+
+**How to Access the Sandbox:**
+* Login to the web app: [https://app.insightai.in](https://app.insightai.in)
+* Navigate to the "Sandbox Testing" section.
+* Use the API key provided for sandbox testing.
+Note: API responses in the sandbox are simulated to help you understand how the production system works.
+
+### Authentication 🛡️
+Every API request requires the API key to be sent in the Authorization header as a Bearer token.
+
+**Header Example:**
+```
+Authorization: Bearer YOUR_API_KEY
+```
+
+### Base URL
+All API endpoints are available at the following base URL:
+```
+https://api.insightai.in/
+```
+**Missing API Key Error:**
+If the API key is not provided in the request, you will receive the following error:
+```json
+{
+  "status": "error",
+  "code": 401,
+  "message": "API key is missing. Please include a valid API key in the Authorization header."
+}
 ```
