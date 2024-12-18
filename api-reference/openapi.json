@@ -237,6 +237,10 @@
       "BulkDetectionResponse": {
         "type": "object",
         "properties": {
+          "caseId": {
+            "type": "string",
+            "description": "String Id to represent the case analysis of the bulk transaction"
+          },
           "processedCount": {
             "type": "integer",
             "description": "Number of transactions successfully processed."
@@ -244,6 +248,10 @@
           "fraudulentCount": {
             "type": "integer",
             "description": "Number of transactions flagged as fraudulent."
+          },
+          "analyticsJson": {
+            "type": "object",
+            "description": "JSON of all the transaction flagged and score for each"
           },
           "details": {
             "type": "array",
