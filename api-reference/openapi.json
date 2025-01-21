@@ -285,15 +285,15 @@
         }
       }
     },
-    "/analytics/data_extraction/email_parsing": {
+    "/analytics/forecasting/fecth_book_data/": {
       "post": {
-        "description": "Extracts chargeback-related details from the provided email content.",
+        "description": "Fetches book data from the API for cataloging, user recommendations, and content analysis.",
         "requestBody": {
-          "description": "The email content containing chargeback information to be analyzed.",
+          "description": "Customer data file in CSV or JSON format containing necessary details for onboarding.",
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/EmailParsingRequest"
+                "$ref": "#/components/schemas/CustomerDataLoadRequest"
               }
             }
           },
@@ -301,51 +301,707 @@
         },
         "responses": {
           "200": {
-            "description": "Chargeback details extracted from the email content.",
+            "description": "Customer data successfully loaded",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChargebackDataResponse"
+                  "$ref": "#/components/schemas/CustomerDataLoadResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "Email content missing in the request body.",
+            "description": "Invalid customer data or file format",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/forecasting/fetch_company_data/": {
+      "post": {
+        "description": "Fetches company data from the forecasting API for analysis, trend prediction, and strategic planning.",
+        "requestBody": {
+          "description": "The request body must include a file (CSV, JSON) and an API key for authentication.",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The company data file to upload. Supported formats: CSV or JSON."
+                  },
+                  "api_key": {
+                    "type": "string",
+                    "description": "Authentication API key for accessing the forecasting API.",
+                    "example": "your_api_key_here"
+                  }
+                },
+                "required": [
+                  "file",
+                  "api_key"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Company data successfully loaded and processed for analysis.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Company data successfully loaded and processed."
+                    },
+                    "data_summary": {
+                      "type": "object",
+                      "properties": {
+                        "total_records": {
+                          "type": "integer",
+                          "example": 500
+                        },
+                        "processed_records": {
+                          "type": "integer",
+                          "example": 480
+                        },
+                        "invalid_records": {
+                          "type": "integer",
+                          "example": 20
+                        }
+                      }
+                    },
+                    "table_data": {
+                      "type": "array",
+                      "description": "Processed table data for analysis.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "column1": {
+                            "type": "string",
+                            "example": "Value 1"
+                          },
+                          "column2": {
+                            "type": "string",
+                            "example": "Value 2"
+                          },
+                          "column3": {
+                            "type": "integer",
+                            "example": 100
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid company data or file format.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Unsupported file format or invalid data. Please upload a file in CSV or JSON format."
+                    }
+                  }
                 }
               }
             }
           },
           "401": {
-            "description": "API token missing from headers.",
+            "description": "Authentication failed.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Invalid API token.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid API key provided."
+                    }
+                  }
                 }
               }
             }
           },
           "500": {
-            "description": "Failed to parse the response JSON.",
+            "description": "Server error while processing the file.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "An unexpected error occurred while processing the file. Please try again later."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/forecasting/run_combined_forecast/": {
+      "post": {
+        "description": "Runs a combined forecast analysis using the specified session and time period.",
+        "requestBody": {
+          "description": "The request body must include the session ID and the time period for the forecast.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "session": {
+                    "type": "integer",
+                    "description": "Unique identifier for the forecasting session.",
+                    "example": 1
+                  },
+                  "time_period": {
+                    "type": "integer",
+                    "description": "The time period (in months) for the forecast.",
+                    "example": 24
+                  }
+                },
+                "required": [
+                  "session",
+                  "time_period"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Forecast successfully generated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Combined forecast successfully generated."
+                    },
+                    "forecast_data": {
+                      "type": "array",
+                      "description": "The generated forecast data.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-01-01"
+                          },
+                          "forecast_value": {
+                            "type": "number",
+                            "example": 12345.67
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid session ID or time period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Session ID or time period is invalid."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error while generating the forecast.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "An unexpected error occurred while generating the forecast."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/forecasting/run_simulation_forecast/": {
+      "post": {
+        "description": "Runs a combined forecast analysis using the specified session, time period, and simulation data.",
+        "requestBody": {
+          "description": "The request body must include the session ID, the time period for the forecast, and simulation data for risk analysis.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "session": {
+                    "type": "integer",
+                    "description": "Unique identifier for the forecasting session.",
+                    "example": 1
+                  },
+                  "time_period": {
+                    "type": "integer",
+                    "description": "The time period (in months) for the forecast.",
+                    "example": 24
+                  },
+                  "simulation_data": {
+                    "type": "string",
+                    "description": "Simulation data containing risk factors, formatted as a JSON string.",
+                    "example": "{\"customer_concentration\": 0.2, \"supplier_concentration\": 0.3, \"revenue_growth_rate\": 0.05, \"net_profit_margin\": 0.1, \"gross_margin_decline\": 0.02, \"operating_cash_flow_to_debt\": 0.15}"
+                  }
+                },
+                "required": ["session", "time_period", "simulation_data"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Forecast successfully generated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Combined forecast successfully generated."
+                    },
+                    "forecast_data": {
+                      "type": "array",
+                      "description": "The generated forecast data.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-01-01"
+                          },
+                          "forecast_value": {
+                            "type": "number",
+                            "example": 12345.67
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid session ID, time period, or simulation data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Session ID, time period, or simulation data is invalid."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error while generating the forecast.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "An unexpected error occurred while generating the forecast."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/forecasting/query_vector_data/": {
+      "post": {
+        "description": "Runs a combined forecast analysis using the specified session and time period.",
+        "requestBody": {
+          "description": "The request body must include the session ID and the time period for the forecast.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "session": {
+                    "type": "integer",
+                    "description": "Unique identifier for the forecasting session.",
+                    "example": 1
+                  },
+                  "time_period": {
+                    "type": "integer",
+                    "description": "The time period (in months) for the forecast.",
+                    "example": 24
+                  }
+                },
+                "required": [
+                  "session",
+                  "time_period"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Forecast successfully generated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Combined forecast successfully generated."
+                    },
+                    "forecast_data": {
+                      "type": "array",
+                      "description": "The generated forecast data.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-01-01"
+                          },
+                          "forecast_value": {
+                            "type": "number",
+                            "example": 12345.67
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid session ID or time period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Session ID or time period is invalid."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error while generating the forecast.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "An unexpected error occurred while generating the forecast."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/forecasting/upload_books_data/": {
+      "post": {
+        "description": "Upload financial statements or customer data for forecasting analysis. Supported formats include CSV, XLS, XLSX, and JSON.",
+        "requestBody": {
+          "description": "The request body must include a file (CSV, XLS, XLSX, or JSON) and an API key for authentication.",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The financial statement or customer data file to upload. Supported formats: CSV, XLS, XLSX, or JSON."
+                  },
+                  "api_key": {
+                    "type": "string",
+                    "description": "Authentication API key for accessing the forecasting API.",
+                    "example": "your_api_key_here"
+                  }
+                },
+                "required": [
+                  "file",
+                  "api_key"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "File uploaded successfully and processed for forecasting.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Financial data successfully uploaded and processed."
+                    },
+                    "data_summary": {
+                      "type": "object",
+                      "properties": {
+                        "total_records": {
+                          "type": "integer",
+                          "example": 200
+                        },
+                        "processed_records": {
+                          "type": "integer",
+                          "example": 200
+                        },
+                        "invalid_records": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file type or format.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Unsupported file format. Please upload a file in CSV, XLS, XLSX, or JSON format."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid API key provided."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error while processing the file.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "An unexpected error occurred while processing the file. Please try again later."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/data_extraction/email_parsing/": {
+      "post": {
+        "description": "Extract chargeback-related data from the provided email content, streamlining chargeback analysis and management.",
+        "requestBody": {
+          "description": "Email content containing transaction details and an API key for authentication.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email_content": {
+                    "type": "string",
+                    "example": "Your transaction with reference number 12345ABC made on 15-Nov-2023 with Merchant XYZ for $1500 has been flagged for a chargeback due to unauthorized usage. Please provide supporting documents by 20-Nov-2023."
+                  },
+                  "api_key": {
+                    "type": "string",
+                    "example": "hhhhhhhhhh"
+                  }
+                },
+                "required": [
+                  "email_content",
+                  "api_key"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully extracted data from the email content.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "analyzed_data": {
+                      "type": "object",
+                      "properties": {
+                        "reference_number": {
+                          "type": "string"
+                        },
+                        "transaction_entity": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "number"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "date_of_transaction": {
+                          "type": "string",
+                          "format": "date"
+                        },
+                        "chargeback_reason": {
+                          "type": "string"
+                        },
+                        "customer_information": {
+                          "type": "object"
+                        },
+                        "additional_notes": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to missing email content.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "The 'email_content' field is required and cannot be empty."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request due to missing API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid API token."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden request due to invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Email content missing in the request body."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error due to JSON parsing failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Failed to parse the response JSON."
+                    }
+                  }
                 }
               }
             }
@@ -358,7 +1014,12 @@
     "schemas": {
       "TransactionData": {
         "type": "object",
-        "required": ["transactionId", "amount", "timestamp", "accountDetails"],
+        "required": [
+          "transactionId",
+          "amount",
+          "timestamp",
+          "accountDetails"
+        ],
         "properties": {
           "transactionId": {
             "type": "string",
@@ -498,184 +1159,12 @@
           }
         }
       },
-      "LoanEligibilityRequest": {
-        "type": "object",
-        "required": ["age", "monthly_income", "employment_type", "credit_score", "loan_purpose"],
-        "properties": {
-          "age": {
-            "type": "integer",
-            "description": "Age of the customer."
-          },
-          "gender": {
-            "type": "string",
-            "description": "Gender of the customer."
-          },
-          "marital_status": {
-            "type": "string",
-            "description": "Marital status of the customer."
-          },
-          "state": {
-            "type": "string",
-            "description": "State of residence."
-          },
-          "city": {
-            "type": "string",
-            "description": "City of residence."
-          },
-          "residential_status": {
-            "type": "string",
-            "description": "Customer's residential status (Owned, Rented, Other)."
-          },
-          "monthly_income": {
-            "type": "number",
-            "format": "float",
-            "description": "Monthly income of the customer."
-          },
-          "employment_type": {
-            "type": "string",
-            "description": "Employment type (Salaried, Business, Self-employed)."
-          },
-          "occupation_sector": {
-            "type": "string",
-            "description": "Sector of occupation."
-          },
-          "previous_debt": {
-            "type": "number",
-            "description": "Amount of previous debt (if any)."
-          },
-          "loan_purpose": {
-            "type": "string",
-            "description": "Purpose of the loan."
-          }
-        }
-      },
-      "LoanEligibilityResponse": {
-        "type": "object",
-        "properties": {
-          "eligibility": {
-            "type": "boolean",
-            "description": "Indicates whether the customer is eligible for a loan."
-          },
-          "recommended_loan_amount": {
-            "type": "number",
-            "format": "float",
-            "description": "The amount recommended to be sanctioned to the customer."
-          },
-          "loan_tenure": {
-            "type": "string",
-            "description": "Recommended loan tenure."
-          },
-          "interest_rate": {
-            "type": "number",
-            "format": "float",
-            "description": "Interest rate applicable on the loan."
-          }
-        }
-      },
-      "BulkLoanEligibilityRequest": {
-        "type": "object",
-        "properties": {
-          "file": {
-            "type": "string",
-            "format": "binary",
-            "description": "The bulk file containing multiple customer loan details (CSV/JSON)."
-          }
-        }
-      },
-      "BulkLoanEligibilityResponse": {
-        "type": "object",
-        "properties": {
-          "task_id": {
-            "type": "string",
-            "description": "A unique ID generated for the bulk processing task."
-          },
-          "status": {
-            "type": "string",
-            "description": "Status of the bulk processing request (e.g., 'processing', 'completed')."
-          }
-        }
-      },
-      "BulkLoanEligibilityResults": {
-        "type": "object",
-        "properties": {
-          "task_id": {
-            "type": "string",
-            "description": "The task ID for the bulk loan check."
-          },
-          "results": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/LoanEligibilityResponse"
-            },
-            "description": "The results of the bulk loan eligibility check."
-          }
-        }
-      },
-      "EmailParsingRequest": {
-        "type": "object",
-        "required": ["email_content"],
-        "properties": {
-          "email_content": {
-            "type": "string",
-            "description": "The email content containing chargeback-related information to be analyzed."
-          }
-        }
-      },
-      "ChargebackDataResponse": {
-        "type": "object",
-        "properties": {
-          "reference_number": {
-            "type": "string",
-            "description": "Unique identifier for the transaction."
-          },
-          "transaction_entity": {
-            "type": "string",
-            "description": "Name of the merchant, bank, or gateway involved in the transaction."
-          },
-          "amount": {
-            "type": "number",
-            "format": "float",
-            "description": "Transaction amount."
-          },
-          "currency": {
-            "type": "string",
-            "description": "Currency of the transaction (e.g., USD, INR)."
-          },
-          "date_of_transaction": {
-            "type": "string",
-            "format": "date",
-            "description": "Date when the transaction occurred."
-          },
-          "chargeback_reason": {
-            "type": "string",
-            "description": "Reason for the chargeback, if available."
-          },
-          "customer_information": {
-            "type": "object",
-            "properties": {
-              "customer_name": {
-                "type": "string",
-                "description": "Name of the customer (if provided)."
-              },
-              "customer_email": {
-                "type": "string",
-                "description": "Email address of the customer (if provided)."
-              },
-              "customer_phone": {
-                "type": "string",
-                "description": "Phone number of the customer (if provided)."
-              }
-            }
-          },
-          "additional_notes": {
-            "type": "string",
-            "description": "Any extra information or instructions extracted from the email."
-          }
-        }
-      },
       "Error": {
         "type": "object",
-        "required": ["error", "message"],
+        "required": [
+          "error",
+          "message"
+        ],
         "properties": {
           "error": {
             "type": "string",
