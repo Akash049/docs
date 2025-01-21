@@ -84,6 +84,20 @@
       "group": "Document Check APIs",
       "pages": [
         "api-reference/endpoint/document_check/chargeback_email_analysis"
+      "group": "Cashflow Analysis & Forecasting APIs",
+      "pages": [
+        "api-reference/endpoint/cashflow/fetch_company_data",
+        "api-reference/endpoint/cashflow/fetch_book_data",
+        "api-reference/endpoint/cashflow/run_combined_forecast",
+        "api-reference/endpoint/cashflow/run_simulation_forecast",
+        "api-reference/endpoint/cashflow/query_cashflow",
+        "api-reference/endpoint/cashflow/upload_books_data"
+      ]
+    },
+    {
+      "group": "Email Parsing APIs",
+      "pages": [
+        "api-reference/endpoint/email_parsing_api/email_parsing"
       ]
     }
   ],
