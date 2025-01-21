@@ -90,7 +90,6 @@
         "api-reference/endpoint/cashflow/fetch_book_data",
         "api-reference/endpoint/cashflow/run_combined_forecast",
         "api-reference/endpoint/cashflow/run_simulation_forecast",
-        "api-reference/endpoint/cashflow/query_cashflow",
         "api-reference/endpoint/cashflow/upload_books_data"
       ]
     },
