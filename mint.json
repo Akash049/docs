@@ -71,6 +71,20 @@
         "api-reference/endpoint/fraud_detection/transaction_analysis_bulk",
         "api-reference/endpoint/fraud_detection/fetch_fraud_report_by_id"
       ]
+    },
+    {
+      "group": "Lending and Microfinance APIs",
+      "pages": [
+        "api-reference/endpoint/credit_check/loan_eligibility",
+        "api-reference/endpoint/credit_check/loan_eligibility_bulk",
+        "api-reference/endpoint/credit_check/loan_eligibility_bulk_response"
+      ]
+    },
+    {
+      "group": "Document Check APIs",
+      "pages": [
+        "api-reference/endpoint/document_check/chargeback_email_analysis"
+      ]
     }
   ],
   "footerSocials": {

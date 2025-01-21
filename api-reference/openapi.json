@@ -170,6 +170,188 @@
           }
         }
       }
+    },
+    "/loan-eligibility": {
+      "post": {
+        "description": "Checks the loan eligibility of a customer based on the provided financial and personal details.",
+        "requestBody": {
+          "description": "Customer details for loan eligibility check.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoanEligibilityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Loan eligibility response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanEligibilityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid customer details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loan-eligibility/bulk": {
+      "post": {
+        "description": "Uploads a bulk set of customer details for loan eligibility check.",
+        "requestBody": {
+          "description": "A file containing multiple customer details in CSV or JSON format.",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkLoanEligibilityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Bulk loan eligibility response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkLoanEligibilityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid bulk upload request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loan-eligibility/bulk/results": {
+      "get": {
+        "description": "Fetches the results of the bulk loan eligibility check.",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "description": "The ID of the bulk processing task to fetch results for.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bulk loan eligibility results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkLoanEligibilityResults"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid task ID or bulk results not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/data_extraction/email_parsing": {
+      "post": {
+        "description": "Extracts chargeback-related details from the provided email content.",
+        "requestBody": {
+          "description": "The email content containing chargeback information to be analyzed.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailParsingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Chargeback details extracted from the email content.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChargebackDataResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email content missing in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "API token missing from headers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid API token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to parse the response JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -313,6 +495,181 @@
               "$ref": "#/components/schemas/Error"
             },
             "description": "Details of any errors encountered."
+          }
+        }
+      },
+      "LoanEligibilityRequest": {
+        "type": "object",
+        "required": ["age", "monthly_income", "employment_type", "credit_score", "loan_purpose"],
+        "properties": {
+          "age": {
+            "type": "integer",
+            "description": "Age of the customer."
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender of the customer."
+          },
+          "marital_status": {
+            "type": "string",
+            "description": "Marital status of the customer."
+          },
+          "state": {
+            "type": "string",
+            "description": "State of residence."
+          },
+          "city": {
+            "type": "string",
+            "description": "City of residence."
+          },
+          "residential_status": {
+            "type": "string",
+            "description": "Customer's residential status (Owned, Rented, Other)."
+          },
+          "monthly_income": {
+            "type": "number",
+            "format": "float",
+            "description": "Monthly income of the customer."
+          },
+          "employment_type": {
+            "type": "string",
+            "description": "Employment type (Salaried, Business, Self-employed)."
+          },
+          "occupation_sector": {
+            "type": "string",
+            "description": "Sector of occupation."
+          },
+          "previous_debt": {
+            "type": "number",
+            "description": "Amount of previous debt (if any)."
+          },
+          "loan_purpose": {
+            "type": "string",
+            "description": "Purpose of the loan."
+          }
+        }
+      },
+      "LoanEligibilityResponse": {
+        "type": "object",
+        "properties": {
+          "eligibility": {
+            "type": "boolean",
+            "description": "Indicates whether the customer is eligible for a loan."
+          },
+          "recommended_loan_amount": {
+            "type": "number",
+            "format": "float",
+            "description": "The amount recommended to be sanctioned to the customer."
+          },
+          "loan_tenure": {
+            "type": "string",
+            "description": "Recommended loan tenure."
+          },
+          "interest_rate": {
+            "type": "number",
+            "format": "float",
+            "description": "Interest rate applicable on the loan."
+          }
+        }
+      },
+      "BulkLoanEligibilityRequest": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "The bulk file containing multiple customer loan details (CSV/JSON)."
+          }
+        }
+      },
+      "BulkLoanEligibilityResponse": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "description": "A unique ID generated for the bulk processing task."
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the bulk processing request (e.g., 'processing', 'completed')."
+          }
+        }
+      },
+      "BulkLoanEligibilityResults": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "description": "The task ID for the bulk loan check."
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LoanEligibilityResponse"
+            },
+            "description": "The results of the bulk loan eligibility check."
+          }
+        }
+      },
+      "EmailParsingRequest": {
+        "type": "object",
+        "required": ["email_content"],
+        "properties": {
+          "email_content": {
+            "type": "string",
+            "description": "The email content containing chargeback-related information to be analyzed."
+          }
+        }
+      },
+      "ChargebackDataResponse": {
+        "type": "object",
+        "properties": {
+          "reference_number": {
+            "type": "string",
+            "description": "Unique identifier for the transaction."
+          },
+          "transaction_entity": {
+            "type": "string",
+            "description": "Name of the merchant, bank, or gateway involved in the transaction."
+          },
+          "amount": {
+            "type": "number",
+            "format": "float",
+            "description": "Transaction amount."
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency of the transaction (e.g., USD, INR)."
+          },
+          "date_of_transaction": {
+            "type": "string",
+            "format": "date",
+            "description": "Date when the transaction occurred."
+          },
+          "chargeback_reason": {
+            "type": "string",
+            "description": "Reason for the chargeback, if available."
+          },
+          "customer_information": {
+            "type": "object",
+            "properties": {
+              "customer_name": {
+                "type": "string",
+                "description": "Name of the customer (if provided)."
+              },
+              "customer_email": {
+                "type": "string",
+                "description": "Email address of the customer (if provided)."
+              },
+              "customer_phone": {
+                "type": "string",
+                "description": "Phone number of the customer (if provided)."
+              }
+            }
+          },
+          "additional_notes": {
+            "type": "string",
+            "description": "Any extra information or instructions extracted from the email."
           }
         }
       },
