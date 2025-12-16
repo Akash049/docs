@@ -31,6 +31,16 @@
       "url": "api-reference"
     }
   ],
+  "redirects": [
+    {
+      "source": "/get-started/api-key",
+      "destination": "/api-reference/introduction"
+    },
+    {
+      "source": "/get-started/fraud-detection",
+      "destination": "/api-reference/endpoint/fraud_detection/customer_data_load"
+    }
+  ],
   "anchors": [
     {
       "name": "Overview",
@@ -53,14 +63,20 @@
       "group": "Get Started",
       "pages": [
         "introduction",
-        "API Key",
-        "Fraud Detection"
+        "get-started/api-key",
+        "get-started/fraud-detection"
       ]
     },
     {
       "group": "API Documentation",
       "pages": [
         "api-reference/introduction"
+      ]
+    },
+    {
+      "group": "Device Intelligence APIs",
+      "pages": [
+        "api-reference/endpoint/device_intelligence/riskAlert"
       ]
     },
     {
@@ -73,17 +89,9 @@
       ]
     },
     {
-      "group": "Lending and Microfinance APIs",
+      "group": "Document Forgery APIs",
       "pages": [
-        "api-reference/endpoint/credit_check/loan_eligibility",
-        "api-reference/endpoint/credit_check/loan_eligibility_bulk",
-        "api-reference/endpoint/credit_check/loan_eligibility_bulk_response"
-      ]
-    },
-    {
-      "group": "Document Check APIs",
-      "pages": [
-        "api-reference/endpoint/document_check/chargeback_email_analysis"
+        "api-reference/endpoint/document_forgery/analyse_docs"
       ]
     }
   ],

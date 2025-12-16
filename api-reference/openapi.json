@@ -352,13 +352,425 @@
           }
         }
       }
+    },
+    "/risk_alert/{tenant_id}": {
+      "get": {
+        "description": "Retrieves a detailed real-time risk alert for a specific tenant ID.",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "description": "Tenant ID for which the risk alert report is requested.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Risk alert payload containing risk score, flags, device details, network info, and decision reasons.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskAlert"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tenant ID not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/forgery/analyse/analyse_docs_v2": {
+      "post": {
+        "summary": "Analyse document for forgery and inconsistencies",
+        "description": "Performs document forgery analysis, layout anomaly detection, future-date inconsistencies, cross-field mismatches, and text manipulation traces.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "document": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Document file to be analysed (PDF, PNG, JPG, etc.)"
+                  },
+                  "document_name": {
+                    "type": "string",
+                    "description": "User-provided name of the document.",
+                    "example": "dipak kumar - frontend react.pdf"
+                  },
+                  "doc_format": {
+                    "type": "string",
+                    "description": "Type of document provided.",
+                    "example": "pdf"
+                  }
+                },
+                "required": [
+                  "document",
+                  "doc_format"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document forgery analysis result containing anomaly detections, tampering indicators, and confidence scores.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentForgeryAnalysis"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "RiskAlert": {
+        "type": "object",
+        "properties": {
+          "v": {
+            "type": "integer",
+            "example": 1,
+            "description": "Schema version of the risk alert event."
+          },
+          "type": {
+            "type": "string",
+            "description": "Event type identifier.",
+            "example": "risk.alert"
+          },
+          "tier": {
+            "type": "string",
+            "description": "Risk engine tier indicating the evaluation mode.",
+            "example": "RISK_ONLY"
+          },
+          "ts": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp at which the risk alert was generated.",
+            "example": "2025-12-15T10:20:30.123Z"
+          },
+          "seq": {
+            "type": "integer",
+            "description": "Sequence number of the alert, useful for ordering events.",
+            "example": 9103
+          },
+          "stream": {
+            "type": "object",
+            "description": "Metadata related to the tenant and organization origin of the event.",
+            "properties": {
+              "org_id": {
+                "type": "string",
+                "example": "Rooter"
+              },
+              "tenant_id": {
+                "type": "string",
+                "example": "WEB-REACT"
+              }
+            }
+          },
+          "data": {
+            "type": "object",
+            "description": "Core risk evaluation payload including decision, risk score, entity details, and correlation signals.",
+            "properties": {
+              "alert_id": {
+                "type": "string",
+                "description": "Unique identifier assigned to the risk alert.",
+                "example": "ALRT-20251215-9103"
+              },
+              "decision": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "example": "BLOCK"
+                  },
+                  "severity": {
+                    "type": "string",
+                    "example": "HIGH"
+                  },
+                  "risk_score": {
+                    "type": "number",
+                    "example": 0.82
+                  },
+                  "confidence": {
+                    "type": "number",
+                    "example": 0.74
+                  }
+                }
+              },
+              "entity": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "object",
+                    "properties": {
+                      "client_user_id": {
+                        "type": "string",
+                        "example": "u_123"
+                      },
+                      "account_id": {
+                        "type": "string",
+                        "example": "acc_991"
+                      },
+                      "labels": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "new_user",
+                          "high_value"
+                        ]
+                      }
+                    }
+                  },
+                  "device": {
+                    "type": "object",
+                    "properties": {
+                      "device_id": {
+                        "type": "string",
+                        "example": "d_4OwdmtpInKd9fW1fMBSAHN"
+                      },
+                      "device_fingerprint": {
+                        "type": "string",
+                        "example": "fp_9c1a..."
+                      },
+                      "browser": {
+                        "type": "string",
+                        "example": "Chrome"
+                      },
+                      "os": {
+                        "type": "string",
+                        "example": "MacOS"
+                      },
+                      "ua": {
+                        "type": "string",
+                        "example": "Mozilla/5.0 (...) Chrome/142.0.0.0 Safari/537.36"
+                      },
+                      "screen": {
+                        "type": "string",
+                        "example": "1792x1120@2"
+                      },
+                      "timezone": {
+                        "type": "string",
+                        "example": "Asia/Calcutta"
+                      },
+                      "language": {
+                        "type": "string",
+                        "example": "en-GB"
+                      },
+                      "webgl_hash": {
+                        "type": "string",
+                        "example": "R29vZ2xlIEluYy4gKEludGVsKXxBTkdM..."
+                      }
+                    }
+                  },
+                  "session": {
+                    "type": "object",
+                    "properties": {
+                      "session_id": {
+                        "type": "string",
+                        "example": "SESS-1765265709938-uuuc7n"
+                      },
+                      "first_seen_ts": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-12-15T10:19:50.000Z"
+                      },
+                      "last_seen_ts": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-12-15T10:20:30.000Z"
+                      },
+                      "route": {
+                        "type": "string",
+                        "example": "/checkout"
+                      },
+                      "event_id": {
+                        "type": "string",
+                        "example": "EID-1765265710965-1"
+                      }
+                    }
+                  },
+                  "network": {
+                    "type": "object",
+                    "properties": {
+                      "ip": {
+                        "type": "string",
+                        "example": "203.0.113.10"
+                      },
+                      "geo": {
+                        "type": "object",
+                        "properties": {
+                          "country": {
+                            "type": "string",
+                            "example": "IN"
+                          },
+                          "region": {
+                            "type": "string",
+                            "example": "DL"
+                          },
+                          "city": {
+                            "type": "string",
+                            "example": "New Delhi"
+                          }
+                        }
+                      },
+                      "asn": {
+                        "type": "string",
+                        "example": "AS9498"
+                      },
+                      "isp": {
+                        "type": "string",
+                        "example": "Airtel"
+                      },
+                      "vpn_proxy_suspected": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "rtt_ms": {
+                        "type": "number",
+                        "example": 12
+                      },
+                      "effective_type": {
+                        "type": "string",
+                        "example": "4g"
+                      }
+                    }
+                  }
+                }
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "VPN_SUSPECTED",
+                  "HIGH_VELOCITY",
+                  "AUTOMATION_LIKELY"
+                ]
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "STAT_HYPER_VELOCITY_SPIKE"
+                    },
+                    "weight": {
+                      "type": "number",
+                      "example": 0.35
+                    },
+                    "evidence": {
+                      "type": "object",
+                      "additionalProperties": {},
+                      "example": {
+                        "transaction_velocity_count": 27,
+                        "threshold": 20
+                      }
+                    }
+                  }
+                }
+              },
+              "correlation": {
+                "type": "object",
+                "properties": {
+                  "device_seen_on_users": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "u_123",
+                      "u_881"
+                    ]
+                  },
+                  "user_seen_on_devices": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "d_4Owd...",
+                      "d_k91..."
+                    ]
+                  },
+                  "shared_ip_sessions_10m": {
+                    "type": "integer",
+                    "example": 9
+                  }
+                }
+              },
+              "client_action_hint": {
+                "type": "object",
+                "properties": {
+                  "recommended_controls": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "3DS",
+                      "OTP",
+                      "KYC_STEP_UP"
+                    ]
+                  },
+                  "ttl_seconds": {
+                    "type": "integer",
+                    "example": 900
+                  },
+                  "note": {
+                    "type": "string",
+                    "example": "Block purchase attempt; device shows automation & abnormal velocity."
+                  }
+                }
+              },
+              "additional_data": {
+                "type": "object",
+                "properties": {
+                  "order_id": {
+                    "type": "string",
+                    "example": "ORD-9912"
+                  },
+                  "payment_attempt_id": {
+                    "type": "string",
+                    "example": "PAY-12001"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "TransactionData": {
         "type": "object",
-        "required": ["transactionId", "amount", "timestamp", "accountDetails"],
+        "required": [
+          "transactionId",
+          "amount",
+          "timestamp",
+          "accountDetails"
+        ],
         "properties": {
           "transactionId": {
             "type": "string",
@@ -403,6 +815,60 @@
           "details": {
             "type": "string",
             "description": "Detailed explanation of the fraud detection result."
+          }
+        }
+      },
+      "DocumentForgeryAnalysis": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique analysis report ID.",
+            "example": 27
+          },
+          "document_name": {
+            "type": "string",
+            "description": "Name of the analysed document.",
+            "example": "dipak kumar - frontend react.pdf"
+          },
+          "response": {
+            "type": "array",
+            "description": "List of detected anomalies or validation checks performed.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "issue": {
+                  "type": "string",
+                  "description": "Type or label of the detected issue.",
+                  "example": "Inconsistent spaces after colons"
+                },
+                "observation": {
+                  "type": "string",
+                  "description": "Human-readable explanation of the issue.",
+                  "example": "There are inconsistent spaces after colons in various sections..."
+                },
+                "confidence_score": {
+                  "type": "integer",
+                  "description": "Confidence score for this detection (0–100).",
+                  "example": 75
+                },
+                "tampered": {
+                  "type": "boolean",
+                  "description": "Indicates whether this issue likely represents tampering.",
+                  "example": false
+                },
+                "tampering_type": {
+                  "type": "string",
+                  "description": "Category of tampering or mismatch detected.",
+                  "example": "layout_anomaly"
+                }
+              }
+            }
+          },
+          "document_url": {
+            "type": "string",
+            "description": "Temporary URL to access the stored document.",
+            "example": "https://insightai-testing-sse.s3.amazonaws.com/b823d8_document.pdf"
           }
         }
       },
@@ -500,7 +966,13 @@
       },
       "LoanEligibilityRequest": {
         "type": "object",
-        "required": ["age", "monthly_income", "employment_type", "credit_score", "loan_purpose"],
+        "required": [
+          "age",
+          "monthly_income",
+          "employment_type",
+          "credit_score",
+          "loan_purpose"
+        ],
         "properties": {
           "age": {
             "type": "integer",
@@ -613,7 +1085,9 @@
       },
       "EmailParsingRequest": {
         "type": "object",
-        "required": ["email_content"],
+        "required": [
+          "email_content"
+        ],
         "properties": {
           "email_content": {
             "type": "string",
@@ -675,7 +1149,10 @@
       },
       "Error": {
         "type": "object",
-        "required": ["error", "message"],
+        "required": [
+          "error",
+          "message"
+        ],
         "properties": {
           "error": {
             "type": "string",
