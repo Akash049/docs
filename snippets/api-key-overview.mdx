@@ -1,0 +1,30 @@
+<Note>
+  Welcome to InsightAI’s API documentation! Here, you’ll find everything you need to integrate our powerful fraud detection capabilities into your systems.
+</Note>
+
+---
+
+## API Key Requirement 🔑
+
+To access InsightAI APIs, you must have a valid API key. 
+
+### How to Get an API Key:
+1. Visit our web app: [https://app.insightai.in](https://app.insightai.in)
+2. Generate your API key under the "API Keys" section.
+3. For assistance, contact our team at [akash@insightai.in](mailto:akash@insightai.in)
+
+---
+
+### Credit Limit and Exhaustion
+
+Your API key usage is subject to credit limits based on your subscription plan.  
+If your credits are exhausted, the following error will be returned:
+
+```json
+{
+  "status": "error",
+  "code": 402,
+  "message": "Credit limit exceeded. Please upgrade your plan or contact support."
+}
+```
+
