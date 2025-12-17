@@ -478,11 +478,11 @@
             "properties": {
               "org_id": {
                 "type": "string",
-                "example": "Rooter"
+                "example": "4561237890123456"
               },
               "tenant_id": {
                 "type": "string",
-                "example": "WEB-REACT"
+                "example": "A9F3K8M2Q7L4ZP1X"
               }
             }
           },
