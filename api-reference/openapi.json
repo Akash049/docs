@@ -439,10 +439,100 @@
           }
         }
       }
+    },
+    "/rules": {
+      "post": {
+        "description": "Creates a new dynamic risk rule in the rule engine.",
+        "requestBody": {
+          "description": "Rule definition containing trigger conditions and actions.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRuleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Rule created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateRuleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed JSON or missing required fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid rule logic or unsupported operator",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "CreateRuleRequest": {
+        "type": "object",
+        "required": [
+          "rule_name",
+          "category",
+          "applies_to",
+          "trigger_condition",
+          "action"
+        ],
+        "properties": {
+          "rule_name": {
+            "type": "string",
+            "description": "Human-readable name for the rule."
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "MANDATORY",
+              "ACQUIRER-SPECIFIC",
+              "TPAP-SPECIFIC"
+            ],
+            "description": "Rule classification."
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional description of the rule logic."
+          },
+          "applies_to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Entities this rule applies to."
+          },
+          "trigger_condition": {
+            "$ref": "#/components/schemas/TriggerCondition"
+          },
+          "action": {
+            "$ref": "#/components/schemas/RuleAction"
+          }
+        }
+      },
       "RiskAlert": {
         "type": "object",
         "properties": {

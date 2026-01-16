@@ -93,6 +93,12 @@
       "pages": [
         "api-reference/endpoint/document_forgery/analyse_docs"
       ]
+    },
+    {
+      "group": " Dynamic Risk Rule Engine",
+      "pages": [
+        "api-reference/endpoint/dynamic_risk_rule_engine/create_a_new_rule"
+      ]
     }
   ],
   "footerSocials": {
