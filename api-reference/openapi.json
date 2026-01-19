@@ -439,10 +439,538 @@
           }
         }
       }
+    },
+    "/rules": {
+      "post": {
+        "description": "Creates a new dynamic risk rule in the rule engine.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRuleRequest"
+              },
+              "example": {
+                "rule_name": "High-Value Transaction Check",
+                "category": "MANDATORY",
+                "description": "Decline any transaction above 50,000",
+                "applies_to": [
+                  "Merchant"
+                ],
+                "trigger_condition": {
+                  "field": "amount",
+                  "operator": "gt",
+                  "value": 50000
+                },
+                "action": {
+                  "type": "DECLINE",
+                  "reason": "Amount exceeds daily merchant limit"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Rule created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateRuleResponse"
+                },
+                "example": {
+                  "message": "Rule created successfully",
+                  "id": "a1b2c3d4"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed JSON or missing required fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid rule logic or unsupported operator",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "description": "Retrieves a list of all currently active rules in the engine.",
+        "responses": {
+          "200": {
+            "description": "List of active rules",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListRulesResponse"
+                },
+                "example": [
+                  {
+                    "id": "a1b2c3d4",
+                    "rule_name": "High-Value Transaction Check",
+                    "category": "MANDATORY",
+                    "description": "Decline any transaction above 50,000",
+                    "applies_to": [
+                      "Merchant"
+                    ],
+                    "status": "ACTIVE"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "missing_token": {
+                    "summary": "Authorization header missing",
+                    "value": {
+                      "error": "UNAUTHORIZED",
+                      "message": "Authorization header is missing."
+                    }
+                  },
+                  "invalid_token": {
+                    "summary": "Invalid bearer token",
+                    "value": {
+                      "error": "UNAUTHORIZED",
+                      "message": "The provided authentication token is invalid or expired."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "insufficient_permissions": {
+                    "summary": "User lacks permission",
+                    "value": {
+                      "error": "FORBIDDEN",
+                      "message": "You do not have permission to access rule data."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "unexpected_error": {
+                    "summary": "Unhandled exception",
+                    "value": {
+                      "error": "INTERNAL_ERROR",
+                      "message": "An unexpected error occurred. Please try again later."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rules/{rule_id}": {
+      "delete": {
+        "description": "Deletes a rule permanently from the rule engine using its unique rule ID.",
+        "parameters": [
+          {
+            "name": "rule_id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the rule to be deleted.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rule deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteRuleResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Rule ID not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analyze": {
+      "post": {
+        "summary": "Analyze Transaction",
+        "description": "Evaluates a transaction against all active rules and returns a risk decision.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyzeTransactionRequest"
+              },
+              "example": {
+                "txn_id": "TXN_987654",
+                "amount": 7500.5,
+                "merchant_id": "MERCH_123",
+                "vpa": "customer@upi",
+                "mcc": "5411",
+                "status": "INITIATED",
+                "ip_address": "192.168.1.1",
+                "device_id": "ANDROID_ID_88"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction evaluation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeTransactionResponse"
+                },
+                "example": {
+                  "decision": "APPROVE",
+                  "triggered_rules": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "invalid_json": {
+                    "summary": "Malformed JSON",
+                    "value": {
+                      "error": "BAD_REQUEST",
+                      "message": "Invalid JSON structure in request body."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid rule evaluation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "invalid_operator": {
+                    "summary": "Operator not allowed for field",
+                    "value": {
+                      "error": "INVALID_RULE_LOGIC",
+                      "message": "Operator 'gt' cannot be applied to field 'vpa'."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal rule engine error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "engine_failure": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "error": "INTERNAL_ERROR",
+                      "message": "Transaction evaluation failed due to an internal error."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AnalyzeTransactionRequest": {
+        "type": "object",
+        "required": [
+          "txn_id",
+          "amount",
+          "merchant_id",
+          "vpa",
+          "mcc",
+          "status"
+        ],
+        "properties": {
+          "txn_id": {
+            "type": "string",
+            "description": "Unique transaction identifier."
+          },
+          "amount": {
+            "type": "number",
+            "description": "Transaction amount."
+          },
+          "merchant_id": {
+            "type": "string",
+            "description": "Merchant identifier."
+          },
+          "vpa": {
+            "type": "string",
+            "description": "Virtual Payment Address (UPI)."
+          },
+          "mcc": {
+            "type": "string",
+            "description": "Merchant Category Code."
+          },
+          "status": {
+            "type": "string",
+            "description": "Transaction lifecycle status."
+          },
+          "ip_address": {
+            "type": "string",
+            "description": "Origin IP address."
+          },
+          "device_id": {
+            "type": "string",
+            "description": "Unique device identifier."
+          }
+        }
+      },
+      "AnalyzeTransactionResponse": {
+        "type": "object",
+        "required": [
+          "decision",
+          "triggered_rules"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "DECLINE",
+              "REVIEW"
+            ],
+            "description": "Final transaction decision."
+          },
+          "triggered_rules": {
+            "type": "array",
+            "description": "List of rule names that were triggered.",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateRuleRequest": {
+        "type": "object",
+        "required": [
+          "rule_name",
+          "category",
+          "applies_to",
+          "trigger_condition",
+          "action"
+        ],
+        "properties": {
+          "rule_name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "MANDATORY",
+              "ACQUIRER-SPECIFIC",
+              "TPAP-SPECIFIC"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "applies_to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "trigger_condition": {
+            "$ref": "#/components/schemas/TriggerCondition"
+          },
+          "action": {
+            "$ref": "#/components/schemas/RuleAction"
+          }
+        }
+      },
+      "CreateRuleResponse": {
+        "type": "object",
+        "required": [
+          "message",
+          "id"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Rule created successfully"
+          },
+          "id": {
+            "type": "string",
+            "example": "a1b2c3d4"
+          }
+        }
+      },
+      "ListRulesResponse": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Rule"
+        }
+      },
+      "Rule": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "rule_name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "applies_to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "example": "ACTIVE"
+          },
+          "trigger_condition": {
+            "$ref": "#/components/schemas/TriggerCondition"
+          },
+          "action": {
+            "$ref": "#/components/schemas/RuleAction"
+          }
+        }
+      },
+      "TriggerCondition": {
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "value"
+        ],
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "operator": {
+            "type": "string",
+            "enum": [
+              "gt",
+              "lt",
+              "eq",
+              "contains",
+              "in"
+            ]
+          },
+          "value": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "RuleAction": {
+        "type": "object",
+        "required": [
+          "type",
+          "reason"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "DECLINE"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "DeleteRuleResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Rule deleted successfully"
+          },
+          "id": {
+            "type": "string",
+            "example": "a1b2c3d4"
+          }
+        }
+      },
       "RiskAlert": {
         "type": "object",
         "properties": {
@@ -1156,11 +1684,11 @@
         "properties": {
           "error": {
             "type": "string",
-            "description": "Error code."
+            "description": "Machine-readable error code."
           },
           "message": {
             "type": "string",
-            "description": "Error message describing the issue."
+            "description": "Human-readable error description."
           }
         }
       }

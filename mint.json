@@ -93,6 +93,15 @@
       "pages": [
         "api-reference/endpoint/document_forgery/analyse_docs"
       ]
+    },
+    {
+      "group": "Fraud Risk Management (FRM)",
+      "pages": [
+        "api-reference/endpoint/dynamic_risk_rule_engine/create_a_new_rule",
+        "api-reference/endpoint/dynamic_risk_rule_engine/list_active_rules",
+        "api-reference/endpoint/dynamic_risk_rule_engine/delete_a_rule",
+        "api-reference/endpoint/dynamic_risk_rule_engine/analyze_transaction"
+      ]
     }
   ],
   "footerSocials": {
