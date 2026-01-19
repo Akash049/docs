@@ -1,0 +1,62 @@
+---
+title: Analyze Transaction
+openapi: 'POST /analyze'
+description: Evaluates a transaction against all active rules and returns a real-time risk decision.
+---
+
+## Overview
+
+The **Transaction Processing Engine** evaluates incoming transactions against all
+currently active dynamic risk rules and produces a deterministic decision.
+
+The evaluation is stateless, real-time, and does not require rule engine redeployment.
+
+---
+
+## Response Body
+
+```json
+{
+  "txn_id": "TXN_987654",
+  "amount": 7500.50,
+  "merchant_id": "MERCH_123",
+  "vpa": "customer@upi",
+  "mcc": "5411",
+  "status": "INITIATED",
+  "ip_address": "192.168.1.1",
+  "device_id": "ANDROID_ID_88"
+}
+
+```
+---
+
+### Success Response (201):
+```json
+{
+  "decision": "APPROVE",
+  "triggered_rules": []
+}
+
+```
+---
+## Data Dictionary
+### Schema Parameters
+
+
+| Parameter           | Type   | Required | Description                                      |
+| :------------------- | :------ | :-------- | :------------------------------------------------ |
+| rule_name           | String | Yes      | Human-readable name for the rule.                |
+| category            | Enum   | Yes      | Classification: MANDATORY, ACQUIRER-SPECIFIC, TPAP-SPECIFIC. |
+| trigger_condition   | Object | Yes      | The logical expression (AND/OR or base comparison). |
+| action              | Object | Yes      | Defines the result if the rule triggers (e.g., DECLINE). |
+---
+### Evaluation Fields (field)
+
+| Field        | Data Type  | Valid Operators        |
+| :------------ | :---------- | :---------------------- |
+| amount       | Float / Int| gt, lt, eq             |
+| vpa          | String     | eq, contains, in       |
+| mcc          | String     | eq, in                 |
+| merchant_id  | String     | eq, in                 |
+| ip_address   | String     | eq, in                 |
+
